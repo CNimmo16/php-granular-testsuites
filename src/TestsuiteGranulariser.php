@@ -36,7 +36,7 @@ class TestsuiteGranulariser
         $this->doc->load($configPath);
     }
 
-    public function granularise(string | null $outputPath, bool $overwrite)
+    public function granularise(string | null $outputPath, bool $overwrite): string
     {
         /**
          * @var DOMNode $testSuitesNode
@@ -98,6 +98,8 @@ class TestsuiteGranulariser
             file_put_contents($outputPath, $xml);
             echo 'Success!' . PHP_EOL;
         }
+
+        return $xml;
     }
 
     private function getTestFilePathsInDirectory(string $directoryPath, string $prefix, string $suffix)
