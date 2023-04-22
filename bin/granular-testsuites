@@ -1,0 +1,36 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use Cnimmo\GranularTestsuites\TestsuiteGranulariser;
+
+if (file_exists(__DIR__.'/../vendor/autoload.php')) {
+    require __DIR__.'/../vendor/autoload.php';
+} elseif (file_exists(__DIR__.'/../../../autoload.php')) {
+    require __DIR__.'/../../../autoload.php';
+} else {
+    echo 'Run "composer install" in order to install the necessary dependencies.'.PHP_EOL;
+    exit(1);
+}
+
+$opts = getopt('c:o:', ['output-path:', 'config-path:', 'overwrite']);
+
+$configPath = $opts['c'] ?? $opts['config'] ?? null;
+$outputPath = $opts['o'] ?? $opts['output-path'] ?? null;
+$overwrite = isset($opts['overwrite']) ?? false;
+
+if (!$configPath) {
+    echo 'Config file not specified. Defaulting to phpunit.xml'.PHP_EOL;
+    $configPath = getcwd() . '/phpunit.xml';
+}
+if (realpath($configPath) === false) {
+    echo 'Config file not found: ' . $configPath . PHP_EOL;
+    exit(1);
+}
+if (is_dir($configPath)) {
+    echo 'Specified config file refers to a directory: ' . $configPath . PHP_EOL;
+    exit(1);
+}
+
+(new TestsuiteGranulariser($configPath))->granularise($outputPath, $overwrite);

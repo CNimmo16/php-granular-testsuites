@@ -1,0 +1,19 @@
+{
+    "name": "cnimmo/granular-testsuites",
+    "description": "Take an existing phpunit XML config and generate a new config containing a standalone testsuite for each test file within the original testsuites.",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Cnimmo\\GranularTestsuites\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "CNimmo16",
+            "email": "48329714+CNimmo16@users.noreply.github.com"
+        }
+    ],
+    "require": {},
+    "bin": ["bin/granular-testsuites"]
+}
