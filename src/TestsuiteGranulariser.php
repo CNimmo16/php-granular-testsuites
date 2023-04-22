@@ -105,8 +105,10 @@ class TestsuiteGranulariser
 
     private function getTestFilePathsInDirectory(string $directoryPath, string $prefix, string $suffix)
     {
-        $glob = $directoryPath . "/**/$prefix*$suffix";
-        $allFilesInDirectory = rglob($glob);
+        $allFilesInDirectory = [
+            ...glob($directoryPath . "/$prefix*$suffix"),
+            ...rglob($directoryPath . "/**/$prefix*$suffix")
+        ];
         
         return array_map(function ($absolutePath) {
             return str_replace($this->configFileParentDirectoryPath, '.', $absolutePath);
