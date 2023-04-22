@@ -21,6 +21,8 @@ class TestsuiteGranulariser
 {
     private string $configFileParentDirectoryPath;
     private DOMDocument $doc;
+    public string $xml;
+    public array $allTestFilePaths = [];
 
     public function __construct(string $configPath)
     {
@@ -43,7 +45,6 @@ class TestsuiteGranulariser
          */
         $testSuitesNode = $this->doc->getElementsByTagName('testsuites')[0];
 
-        $allTestFilePaths = [];
         /**
          * @var DOMNode $testSuiteNode
          */
@@ -57,10 +58,10 @@ class TestsuiteGranulariser
                         $prefix = $child->attributes->getNamedItem('prefix')?->nodeValue ?? '';
                         $suffix = $child->attributes->getNamedItem('suffix')?->nodeValue ?? '.php';
                         $directoryPath = realpath($this->configFileParentDirectoryPath . '/' . $child->textContent);
-                        array_push($allTestFilePaths, ...$this->getTestFilePathsInDirectory($directoryPath, $prefix, $suffix));
+                        array_push($this->allTestFilePaths, ...$this->getTestFilePathsInDirectory($directoryPath, $prefix, $suffix));
                         break;
                     case 'file':
-                        array_push($allTestFilePaths, $child->textContent);
+                        array_push($this->allTestFilePaths, $child->textContent);
                         break;
                 }
             }
@@ -75,17 +76,17 @@ class TestsuiteGranulariser
             $file = $this->doc->createElement('file', $filePath);
             $testSuite->appendChild($file);
             return $testSuite;
-        }, $allTestFilePaths);
+        }, $this->allTestFilePaths);
 
         foreach ($testSuites as $testSuite) {
             $testSuitesNode->appendChild($testSuite);
         }
 
-        $xml = $this->doc->saveXML();
+        $this->xml = $this->doc->saveXML();
 
         if (!$outputPath) {
             echo 'WARNING: Output file not specified. Defaulting to stdout.' . PHP_EOL . PHP_EOL;
-            echo $xml;
+            echo $this->xml;
         } else {
             if (!$overwrite && file_exists($outputPath)) {
                 echo 'ERROR: Output file already exists. Use --overwrite to overwrite.' . PHP_EOL;
@@ -95,11 +96,11 @@ class TestsuiteGranulariser
                 echo 'WARNING: Output file already exists. Overwriting.' . PHP_EOL;
             }
             echo '> Writing to ' . $outputPath . PHP_EOL;
-            file_put_contents($outputPath, $xml);
+            file_put_contents($outputPath, $this->xml);
             echo 'Success!' . PHP_EOL;
         }
 
-        return $xml;
+        return $this->xml;
     }
 
     private function getTestFilePathsInDirectory(string $directoryPath, string $prefix, string $suffix)
