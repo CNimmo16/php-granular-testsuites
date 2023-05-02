@@ -23,8 +23,9 @@ class TestsuiteGranulariser
     private DOMDocument $doc;
     public string $xml;
     public array $allTestFilePaths = [];
+    private bool $debug;
 
-    public function __construct(string $configPath)
+    public function __construct(string $configPath, bool $debug = false)
     {
         if (!file_exists($configPath)) {
             echo 'ERROR: Config file does not exist: ' . $configPath . PHP_EOL;
@@ -36,6 +37,7 @@ class TestsuiteGranulariser
         $this->doc->formatOutput = true;
         $this->doc->preserveWhiteSpace = false;
         $this->doc->load($configPath);
+        $this->debug = $debug;
     }
 
     public function granularise(string | null $outputPath, bool $overwrite): string
@@ -85,19 +87,25 @@ class TestsuiteGranulariser
         $this->xml = $this->doc->saveXML();
 
         if (!$outputPath) {
-            echo 'WARNING: Output file not specified. Defaulting to stdout.' . PHP_EOL . PHP_EOL;
+            if ($this->debug) {
+                echo 'WARNING: Output file not specified. Defaulting to stdout.' . PHP_EOL . PHP_EOL;
+            }
             echo $this->xml;
         } else {
             if (!$overwrite && file_exists($outputPath)) {
                 echo 'ERROR: Output file already exists. Use --overwrite to overwrite.' . PHP_EOL;
                 exit(1);
             }
-            if (file_exists($outputPath)) {
+            if (file_exists($outputPath) && $this->debug) {
                 echo 'WARNING: Output file already exists. Overwriting.' . PHP_EOL;
             }
-            echo '> Writing to ' . $outputPath . PHP_EOL;
+            if ($this->debug) {
+                echo '> Writing to ' . $outputPath . PHP_EOL;
+            }
             file_put_contents($outputPath, $this->xml);
-            echo 'Success!' . PHP_EOL;
+            if ($this->debug) {
+                echo 'Success!' . PHP_EOL;
+            }
         }
 
         return $this->xml;

@@ -14,11 +14,12 @@ if (file_exists(__DIR__.'/../vendor/autoload.php')) {
     exit(1);
 }
 
-$opts = getopt('c:o:', ['output-path:', 'config-path:', 'overwrite']);
+$opts = getopt('c:o:d', ['output-path:', 'config-path:', 'overwrite']);
 
 $configPath = $opts['c'] ?? $opts['config'] ?? null;
 $outputPath = $opts['o'] ?? $opts['output-path'] ?? null;
 $overwrite = isset($opts['overwrite']) ?? false;
+$debug = $opts['d'] ?? $opts['debug'] ?? false;
 
 if (!$configPath) {
     echo 'Config file not specified. Defaulting to phpunit.xml'.PHP_EOL;
@@ -33,4 +34,4 @@ if (is_dir($configPath)) {
     exit(1);
 }
 
-(new TestsuiteGranulariser($configPath))->granularise($outputPath, $overwrite);
+(new TestsuiteGranulariser($configPath, $debug))->granularise($outputPath, $overwrite);
